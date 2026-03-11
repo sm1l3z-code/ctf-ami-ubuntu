@@ -1,0 +1,9 @@
+/build/
+*.log
+*.tmp
+*.retry
+*.pem
+*.pub
+*.pkrvars.hcl
+!.example
+artifacts/src_archive.tar.gz

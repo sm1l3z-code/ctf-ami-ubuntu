@@ -1,0 +1,15 @@
+[Unit]
+Description=HTB MCP server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/infra/htb-mcp
+EnvironmentFile=-/opt/infra/.env
+ExecStart=/opt/infra/htb-mcp/target/release/htb-mcp
+Restart=unless-stopped
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
