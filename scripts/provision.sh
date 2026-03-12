@@ -26,7 +26,7 @@ log() {
 }
 
 ensure_path() {
-  local line='export PATH="/opt/jadx/bin:/root/.cargo/bin:/root/.foundry/bin:/opt/miniforge3/bin:/opt/miniforge3/envs/sage/bin:$PATH"'
+  local line='export PATH="$PATH:/opt/jadx/bin:/root/.cargo/bin:/root/.foundry/bin:/opt/miniforge3/bin:/opt/miniforge3/envs/sage/bin"'
   grep -qxF "$line" /root/.bashrc || echo "$line" >> /root/.bashrc
 }
 
@@ -116,7 +116,8 @@ mkdir -p /opt/infra /opt/jadx /sherlock/{evidence,analysis,truths,timeline} /cha
 
 if [[ -f /tmp/ami-baker/src_archive.tar.gz ]]; then
   log "extracting local source archive"
-  tar xzf /tmp/ami-baker/src_archive.tar.gz -C /opt/infra
+  mkdir /opt/infra/htb-mcp
+  tar xzf /tmp/ami-baker/src_archive.tar.gz -C /opt/infra/htb-mcp
 fi
 
 log "SecLists"
@@ -226,7 +227,9 @@ python3 -m pip install --ignore-installed typing_extensions \
   numpy \
   scipy \
   opencv-python \
-  androguard
+  androguard \
+  lief \
+  pefile
 
 log "jadx"
 if [[ ! -x /opt/jadx/bin/jadx ]]; then
