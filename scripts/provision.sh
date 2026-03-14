@@ -136,24 +136,7 @@ fi
 # shellcheck disable=SC1090
 source "$NVM_DIR/nvm.sh"
 nvm install node
-npm install -g @google/gemini-cli @openai/codex localtunnel
-
-mkdir -p /root/.gemini /root/.codex/skills
-if [[ -f /opt/infra/brain/AGENT.md ]]; then
-  cp /opt/infra/brain/AGENT.md /root/.gemini/GEMINI.md
-  cp /opt/infra/brain/AGENT.md /root/.codex/AGENTS.md
-fi
-if [[ -d /opt/infra/brain/skills ]]; then
-  rm -rf /root/.gemini/skills /root/.codex/skills
-  cp -R /opt/infra/brain/skills /root/.gemini/skills
-  cp -R /opt/infra/brain/skills /root/.codex/skills
-fi
-mkdir -p /root/.codex
-cat > /root/.codex/config.toml <<'EOCFG'
-[mcp_servers.htb-mcp]
-url = "http://127.0.0.1:3000/mcp"
-enabled = true
-EOCFG
+npm install -g localtunnel
 
 log "ruby gems"
 gem install one_gadget seccomp-tools
@@ -182,7 +165,6 @@ fi
 /opt/miniforge3/envs/sage/bin/pip install pwntools pycryptodome
 
 log "profile"
-install -m 0644 /tmp/ami-baker/ctf-tooling.sh /etc/profile.d/ctf-tooling.sh
 ensure_path
 install -m 0755 /opt/miniforge3/envs/sage/bin/sage /usr/local/bin/sage
 
@@ -229,7 +211,9 @@ python3 -m pip install --ignore-installed typing_extensions \
   opencv-python \
   androguard \
   lief \
-  pefile
+  pefile \
+  'oletools[full]' \
+  angr
 
 log "jadx"
 if [[ ! -x /opt/jadx/bin/jadx ]]; then
@@ -253,6 +237,18 @@ log "systemd service"
 install -m 0644 /tmp/ami-baker/htb-mcp.service /etc/systemd/system/htb-mcp.service
 systemctl daemon-reload
 systemctl enable htb-mcp || true
+
+curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+  | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+  && echo "deb https://ngrok-agent.s3.amazonaws.com bookworm main" \
+  | sudo tee /etc/apt/sources.list.d/ngrok.list \
+  && sudo apt update \
+  && sudo apt install ngrok
+
+/tmp/ami-baker/codex.sh
+/tmp/ami-baker/gemini-cli.sh
+/tmp/ami-baker/claude-code.sh
+
 
 log "cleanup"
 apt-get clean

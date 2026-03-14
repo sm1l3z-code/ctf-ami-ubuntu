@@ -92,6 +92,8 @@ build {
 
   provisioner "shell" {
     inline = [
+      "echo 'Waiting for cloud-init to finish...'",
+      "cloud-init status --wait",
       "sudo mkdir -p /tmp/ami-baker /opt/infra /opt/jadx /etc/profile.d /var/log/ami-baker",
       "sudo chown -R ubuntu:ubuntu /tmp/ami-baker /opt/infra /var/log/ami-baker"
     ]
@@ -103,11 +105,6 @@ build {
   }
 
   provisioner "file" {
-    source      = "${path.root}/../files/ctf-tooling.sh"
-    destination = "/tmp/ami-baker/ctf-tooling.sh"
-  }
-
-  provisioner "file" {
     source      = "${path.root}/../files/htb-mcp.service"
     destination = "/tmp/ami-baker/htb-mcp.service"
   }
@@ -115,6 +112,21 @@ build {
   provisioner "file" {
     source      = "${path.root}/../files/install_ez_tools.sh"
     destination = "/tmp/ami-baker/install_ez_tools.sh"
+  }
+
+  provisioner "file" {
+    source      = "${path.root}/../scripts/codex.sh"
+    destination = "/tmp/ami-baker/codex.sh"
+  }
+
+  provisioner "file" {
+    source      = "${path.root}/../scripts/gemini-cli.sh"
+    destination = "/tmp/ami-baker/gemini-cli.sh"
+  }
+
+  provisioner "file" {
+    source      = "${path.root}/../scripts/claude-code.sh"
+    destination = "/tmp/ami-baker/claude-code.sh"
   }
 
 
