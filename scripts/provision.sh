@@ -42,6 +42,7 @@ log "apt packages"
 retry 5 apt-get update -y
 retry 3 apt-get install -y \
   ca-certificates \
+  cmake \
   curl \
   docker.io \
   git \
@@ -97,8 +98,26 @@ retry 3 apt-get install -y \
   ncat \
   python3-websocket \
   gcc-avr \
+  ltrace \
   mosquitto-clients \
-  ruby-full
+  ruby-full \
+  qemu \
+  qemu-system-arm \
+  qemu-user \
+  qemu-user-static \
+  patchelf \
+  protobuf-compiler \
+  libstdc++-11-dev \
+  libstdc++-12-dev \
+  libc++-dev \
+  libc++abi-dev \
+  upx-ucl \
+  openjdk-21-jdk \
+  binutils-arm-linux-gnueabi \
+  binutils-aarch64-linux-gnu \
+  gdb-multiarch \
+  llvm-objdump \
+  socat
 
 systemctl enable docker || true
 
@@ -136,7 +155,6 @@ fi
 # shellcheck disable=SC1090
 source "$NVM_DIR/nvm.sh"
 nvm install node
-npm install -g localtunnel
 
 log "ruby gems"
 gem install one_gadget seccomp-tools
@@ -213,7 +231,13 @@ python3 -m pip install --ignore-installed typing_extensions \
   lief \
   pefile \
   'oletools[full]' \
-  angr
+  angr \
+  reflutter \
+  pyelftools \
+  frida \
+  frida-tools \
+  pyinstxtractor-ng \
+  pyzipper
 
 log "jadx"
 if [[ ! -x /opt/jadx/bin/jadx ]]; then
@@ -249,6 +273,31 @@ curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
 /tmp/ami-baker/gemini-cli.sh
 /tmp/ami-baker/claude-code.sh
 
+# Install ghidra
+
+wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.0.4_build/ghidra_12.0.4_PUBLIC_20260303.zip -O /opt/ghidra.zip
+cd /opt/
+unzip ghidra.zip
+mv /opt/ghidra_12.0.4_PUBLIC/ /opt/ghidra
+cd -
+
+# Install apktool
+wget https://raw.githubusercontent.com/iBotPeaches/Apktool/refs/heads/main/scripts/linux/apktool -O /usr/bin/apktool
+chmod +x /usr/bin/apktool
+wget https://github.com/iBotPeaches/Apktool/releases/download/v3.0.1/apktool_3.0.1.jar -O /usr/bin/apktool.jar
+chmod +x /usr/bin/apktool.jar
+
+# Install pycdc
+cd /opt/
+git clone https://github.com/zrax/pycdc
+cd pycdc
+cmake .
+make install
+cd -
+rm -rf /opt/pycdc
+
+# apk-mitm
+npm install -g apk-mitm frida localtunnel
 
 log "cleanup"
 apt-get clean
