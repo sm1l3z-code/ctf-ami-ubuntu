@@ -116,8 +116,8 @@ retry 3 apt-get install -y \
   binutils-arm-linux-gnueabi \
   binutils-aarch64-linux-gnu \
   gdb-multiarch \
-  llvm-objdump \
-  socat
+  socat \
+  bubblewrap
 
 systemctl enable docker || true
 
@@ -237,7 +237,10 @@ python3 -m pip install --ignore-installed typing_extensions \
   frida \
   frida-tools \
   pyinstxtractor-ng \
-  pyzipper
+  pyzipper \
+  esptool \
+  speakeasy-emulator \
+  volatility3
 
 log "jadx"
 if [[ ! -x /opt/jadx/bin/jadx ]]; then
@@ -296,8 +299,45 @@ make install
 cd -
 rm -rf /opt/pycdc
 
+# Install goresym
+cd /tmp
+wget 'https://github.com/mandiant/GoReSym/releases/download/v3.3/GoReSym-linux.zip'
+unzip GoReSym-linux.zip
+chmod +x GoReSym
+mv GoReSym /usr/bin
+ln -s /usr/bin/GoReSym /usr/bin/goresym
+cd -
+
+# Install floss
+
+cd /tmp
+wget 'https://github.com/mandiant/flare-floss/releases/download/v3.1.1/floss-v3.1.1-linux.zip'
+unzip 'floss-v3.1.1-linux.zip'
+chmod +x floss
+cp floss /usr/bin/floss
+cd -
+
+# Install capa
+cd /tmp
+wget 'https://github.com/mandiant/capa/releases/download/v9.3.1/capa-v9.3.1-linux.zip'
+unzip capa-v9.3.1-linux.zip
+chmod +x capa
+mv capa /usr/bin/capa
+cd -
+
 # apk-mitm
 npm install -g apk-mitm frida localtunnel
+
+# radare
+
+r2pm -U
+r2pm -ci r2ghidra
+
+# bmc-tools
+
+wget 'https://raw.githubusercontent.com/ANSSI-FR/bmc-tools/refs/heads/master/bmc-tools.py' -O /usr/bin/bmc-tools.py
+chmod +x /usr/bin/bmc-tools.py
+ln -s /usr/bin/bmc-tools.py /usr/bin/bmc-tools
 
 log "cleanup"
 apt-get clean
